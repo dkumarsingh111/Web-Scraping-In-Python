@@ -9,34 +9,41 @@ def getFinancialInformation(symbol):
         response = requests.get(url=url)
         txtRes = response.text
         soup = BeautifulSoup(txtRes, features="html.parser")
-
+        startName = "Previous Close"
         finalName = "1y Target Est"
-        trs = soup.find_all("ul")
+        trs = soup.find_all("li")
+        flag = False
 
         names = []
         values = []
         namVal = {}
 
-        for i in range(len(trs)):
-            for j in range(len(trs[i].contents)):
-                if j == 0:
-                    try: 
-                        name = trs[i].contents[j].text
-                        names.append(name)
-                    except:
-                        continue 
+        for i in range(len(trs)):        
+            if trs[i].contents[0].text == startName:
+                flag = True
 
-                if j == 1:
-                    try: 
-                        value = trs[i].contents[j].text
-                        values.append(value)
-                    except:
-                        continue   
+            if flag == True:
+                    
+                for j in range(len(trs[i].contents)):
+                    
+                    if j == 0:
+                        try: 
+                            name = trs[i].contents[j].text
+                            names.append(name)
+                        except:
+                            continue 
 
-            namVal[name] = value
-            if name == finalName:
-                break 
+                    if j == 2:
+                        try: 
+                            value = trs[i].contents[j].text
+                            values.append(value)
+                        except:
+                            continue 
 
+                namVal[name] = value
+                if name == finalName:
+                    flag = False
+                    break 
 
     except:
         pass
@@ -76,9 +83,12 @@ for symbol in tickerSymbols:
     names,values = getFinancialInformation(symbol)
 
     for i in range(len(names)):
-            data["symbol"].append(symbol)
-            data["metric"].append(names[i])
-            data["value"].append(values[i])
+            try:
+                data["symbol"].append(symbol)
+                data["metric"].append(names[i])
+                data["value"].append(values[i])
+            except:
+                continue
 
 
 df = pd.DataFrame(data)
