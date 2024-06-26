@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-import os
+import os, datetime
 
 def getFinancialInformation(symbol):
     try:
@@ -77,17 +77,19 @@ def getCompanyList():
 
 data = {"symbol":[],
         "metric":[],
-        "value":[]}
+        "value":[],
+        "time":[]}
 
 tickerSymbols = getCompanyList()
 for symbol in tickerSymbols:
     names,values = getFinancialInformation(symbol)
-
+    collectedTime = str(datetime.datetime.now())
     for i in range(len(names)):
             try:
                 data["symbol"].append(symbol)
                 data["metric"].append(names[i])
                 data["value"].append(values[i])
+                data["time"].append(collectedTime)
             except:
                 continue
 
@@ -95,6 +97,6 @@ for symbol in tickerSymbols:
 df = pd.DataFrame(data)
 FILE_PATH="FinancialData.csv"
 if os.path.isfile(FILE_PATH):
-    df.to_csv(FILE_PATH, mode="a", header=False, columns=["symbol", "metric", "value"])
+    df.to_csv(FILE_PATH, mode="a", header=False, columns=["symbol", "metric", "value", "time"])
 else:
-    df.to_csv(FILE_PATH, columns=["symbol", "metric", "value"])
+    df.to_csv(FILE_PATH, columns=["symbol", "metric", "value", "time"])
