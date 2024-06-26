@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+import os
 
 def getFinancialInformation(symbol):
     try:
@@ -92,4 +93,8 @@ for symbol in tickerSymbols:
 
 
 df = pd.DataFrame(data)
-df.to_csv("FinancialData.csv")
+FILE_PATH="FinancialData.csv"
+if os.path.isfile(FILE_PATH):
+    df.to_csv(FILE_PATH, mode="a", header=False, columns=["symbol", "metric", "value"])
+else:
+    df.to_csv(FILE_PATH, columns=["symbol", "metric", "value"])
